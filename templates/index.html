@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Painting Store{% endblock %}
+
+{% block content %}
+<header class="hero-section">
+    <h1>Discover Beautiful Paintings</h1>
+    <p>Find art that speaks to your soul and visualize it on your wall with AR.</p>
+</header>
+
+<div class="featured-collections">
+    <h2>Featured Collections</h2>
+    <div style="display: flex; flex-direction: row;" class="collection-preview">
+        {% for collection in collections[:2] %}
+        <div class="collection-card">
+            <img style="border-radius: 15px;width: 300px;height: 250px;" src="{{ collection.image }}" alt="{{ collection.name }}">
+            <div class="collection-info">
+                <h3>{{ collection.name }}</h3>
+                <a href="/collection/{{ collection.id }}" class="view-collection">View Collection</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="paintings">
+    {% for painting in paintings %}
+    <div class="painting">
+        <a href="/product/{{ painting.id }}">
+            <img style="border-radius: 15px;width: 300px;height: 250px;" src="{{ painting.image }}" alt="{{ painting.name }}">
+        </a>
+        <h2>{{ painting.name }}</h2>
+        <p>Price: ₹{{ painting.price }}</p>
+        <div class="painting-actions">
+            <button onclick="addToCart({{ painting.id }})"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+            <a href="/room_view/{{ painting.id }}" class="ar-button"><i class="fas fa-home"></i> View in Room</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

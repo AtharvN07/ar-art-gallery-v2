@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}{% if collection %}{{ collection.name }}{% else %}{{ category }}{% endif %} - Painting Store{% endblock %}
+
+{% block content %}
+<div class="category-container">
+    <h1>{% if collection %}{{ collection.name }}{% else %}{{ category }}{% endif %}</h1>
+    {% if collection %}
+    <p class="collection-description">{{ collection.description }}</p>
+    {% endif %}
+
+    <div class="paintings">
+        {% for painting in paintings %}
+        <div class="painting">
+            <a href="/product/{{ painting.id }}">
+                <img src="{{ painting.image }}" alt="{{ painting.name }}">
+            </a>
+            <h2>{{ painting.name }}</h2>
+            <p>Price: ${{ painting.price }}</p>
+            <div class="painting-actions">
+                <button onclick="addToCart({{ painting.id }})"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                <a class="ar-button" href="/room_view/{{ painting.id }}"><i class="fas fa-home"></i> View in Room</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

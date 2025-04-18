@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - Painting Store{% endblock %}
+
+{% block content %}
+<div class="about-container">
+    <section class="about-hero">
+        <h1>About Our Art Gallery</h1>
+        <p class="subtitle">Where Art Meets Innovation</p>
+    </section>
+
+    <section class="about-story">
+        <div class="story-content">
+            <h2>Our Story</h2>
+            <p>Founded with a passion for art and technology, our gallery brings together traditional paintings with modern augmented reality experiences. We believe that art should be accessible and interactive, allowing you to visualize masterpieces in your own space before making them a part of your life.</p>
+        </div>
+        <div class="story-image">
+            <img src="/static/images/gallery-interior.jpg" alt="Gallery Interior">
+        </div>
+    </section>
+
+    <section class="our-artists">
+        <h2>Meet Our Artists</h2>
+        <div class="artists-grid">
+            <div class="artist-card">
+                <img src="/static/images/artist1.jpg" alt="Artist 1">
+                <h3>Sarah Johnson</h3>
+                <p class="artist-specialty">Contemporary Art</p>
+                <p class="artist-bio">Known for her vibrant use of color and abstract compositions, Sarah brings a modern perspective to traditional themes.</p>
+            </div>
+            <div class="artist-card">
+                <img src="/static/images/artist2.jpg" alt="Artist 2">
+                <h3>Michael Chen</h3>
+                <p class="artist-specialty">Landscape Painting</p>
+                <p class="artist-bio">Michael's landscapes capture the essence of nature with remarkable detail and emotional depth.</p>
+            </div>
+            <div class="artist-card">
+                <img src="/static/images/artist3.jpg" alt="Artist 3">
+                <h3>Emma Rodriguez</h3>
+                <p class="artist-specialty">Portrait Art</p>
+                <p class="artist-bio">Emma's portraits reveal the soul of her subjects through masterful brushwork and emotional insight.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="our-mission">
+        <h2>Our Mission</h2>
+        <div class="mission-content">
+            <p>We are committed to:</p>
+            <ul>
+                <li>Showcasing exceptional artwork from talented artists worldwide</li>
+                <li>Making art accessible through innovative AR technology</li>
+                <li>Creating a welcoming space for art enthusiasts and collectors</li>
+                <li>Supporting emerging artists and promoting artistic expression</li>
+            </ul>
+        </div>
+    </section>
+</div>
+{% endblock %} 

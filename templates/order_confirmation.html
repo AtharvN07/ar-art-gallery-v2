@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Order Confirmation - Painting Store{% endblock %}
+
+{% block content %}
+<div class="confirmation-container">
+    <div class="confirmation-card">
+        <h1>Thank You for Your Order!</h1>
+        <div class="confirmation-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        
+        <div class="order-details">
+            <h2>Order #{{ order.order_id }}</h2>
+            <p>Order Date: {{ order.order_date }}</p>
+            <p>Status: {{ order.payment_status }}</p>
+            <p>Total Amount: ₹{{ "%.2f"|format(order.total_price|float) }}</p>
+            <p>Number of Items: {{ order.number_of_items }}</p>
+        </div>
+        
+        <div class="shipping-info">
+            <h2>Shipping Information</h2>
+            <p>{{ order.customer_name }}</p>
+            <p>{{ order.email }}</p>
+            <p>{{ order.address }}</p>
+        </div>
+        
+        <div class="confirmation-actions">
+            <a href="/" class="continue-shopping">Continue Shopping</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

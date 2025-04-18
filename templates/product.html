@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}{{ painting.name }} - Painting Store{% endblock %}
+
+{% block content %}
+<div class="product-container">
+    <div class="product-image">
+        <img src="{{ painting.image }}" alt="{{ painting.name }}">
+    </div>
+    <div class="product-details">
+        <h1>{{ painting.name }}</h1>
+        <p class="category">Category: {{ painting.category }}</p>
+        <p class="price">₹{{ painting.price }}</p>
+        <div class="product-description">
+            <h2>About this Artwork</h2>
+            <p>{{ painting.description }}</p>
+        </div>
+        <div class="product-actions">
+            <button onclick="addToCart({{ painting.id }})" class="add-to-cart">
+                <i class="fas fa-cart-plus"></i> Add to Cart
+            </button>
+            <a href="/room_view/{{ painting.id }}" class="ar-button">
+                <i class="fas fa-home"></i> View in Room
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

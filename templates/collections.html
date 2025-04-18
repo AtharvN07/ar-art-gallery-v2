@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Collections - Painting Store{% endblock %}
+
+{% block content %}
+<div class="collections-container">
+    <h1>Our Collections</h1>
+    
+    <div class="collection-grid">
+        {% for collection in collections %}
+        <div class="collection-card">
+            <img style="border-radius: 15px;width: 300px;height: 250px;" src="{{ collection.image }}" alt="{{ collection.name }}">
+            <div class="collection-info">
+                <h2>{{ collection.name }}</h2>
+                <p>{{ collection.description }}</p>
+                <a href="/collection/{{ collection.id }}" class="view-collection">View Collection</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

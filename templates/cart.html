@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart - Painting Store{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+    <h1>Shopping Cart</h1>
+    {% if cart %}
+    <table class="cart-table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart %}
+            <tr>
+                <td><img src="{{ item.image }}" alt="{{ item.name }}" class="cart-img"></td>
+                <td>{{ item.name }}</td>
+                <td>₹{{ item.price }}</td>
+                <td>
+                    <button class="remove-btn" onclick="removeFromCart({{ item.id }})">
+                        <i class="fas fa-trash"></i> Remove
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="cart-actions">
+        <a href="/checkout" class="checkout-btn">Proceed to Checkout</a>
+    </div>
+    {% else %}
+    <div class="empty-cart">
+        <p>Your cart is empty</p>
+        <a href="/" class="continue-shopping">Continue Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

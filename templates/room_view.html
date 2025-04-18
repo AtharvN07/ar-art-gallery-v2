@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+
+{% block title %}View {{ painting.name }} in Room - Painting Store{% endblock %}
+
+{% block extra_head %}
+<style>
+    .room-container {
+        position: relative;
+        width: 100%;
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    
+    .camera-container {
+        width: 100%;
+        height: 600px;
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background: #f0f0f0;
+    }
+    
+    #videoElement {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .painting-preview {
+        position: absolute;
+        width: 200px;
+        height: 150px;
+        background: white;
+        border: 2px solid #ff9800;
+        border-radius: 4px;
+        cursor: move;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .painting-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 5px;
+    }
+    
+    .controls {
+        margin-top: 1rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+    
+    .control-btn {
+        padding: 0.5rem 1rem;
+        background: #2c3e50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    
+    .control-btn:hover {
+        background: #34495e;
+    }
+    
+    .size-controls {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    .size-btn {
+        padding: 0.5rem 1rem;
+        background: #ff9800;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    
+    .size-btn:hover {
+        background: #e68900;
+    }
+
+    .camera-error {
+        display: none;
+        text-align: center;
+        padding: 2rem;
+        background: #f8d7da;
+        color: #721c24;
+        border-radius: 4px;
+        margin: 1rem 0;
+    }
+
+    .painting-info {
+        text-align: center;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="room-container">
+    <h1>View "{{ painting.name }}" in Your Room</h1>
+    <div class="painting-info">
+        <p>Drag the painting to position it on the wall. Use the size controls to adjust the dimensions.</p>
+        <p>Current size: <span id="currentSize">200x150</span> pixels</p>
+    </div>
+    
+    <div class="camera-container">
+        <video id="videoElement" autoplay playsinline></video>
+        <div class="painting-preview" id="painting-preview">
+            <img src="{{ url_for('static', filename=painting.image.replace('static/', '')) }}" alt="{{ painting.name }}">
+        </div>
+    </div>
+
+    <div class="camera-error" id="cameraError">
+        <p>Unable to access camera. Please ensure you have granted camera permissions and try again.</p>
+    </div>
+    
+    <div class="controls">
+        <button class="control-btn" onclick="resetPosition()">Reset Position</button>
+        <button class="control-btn" onclick="toggleRotation()">Rotate</button>
+    </div>
+    
+    <div class="size-controls">
+        <button class="size-btn" onclick="adjustSize('increase')">Increase Size</button>
+        <button class="size-btn" onclick="adjustSize('decrease')">Decrease Size</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const video = document.getElementById('videoElement');
+    const painting = document.getElementById('painting-preview');
+    const cameraError = document.getElementById('cameraError');
+    const currentSize = document.getElementById('currentSize');
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+    let rotation = 0;
+
+    // Initialize camera
+    async function initCamera() {
+        try {
+            const constraints = {
+                video: {
+                    facingMode: 'environment',
+                    width: { min: 640, ideal: 1280, max: 1920 },
+                    height: { min: 480, ideal: 720, max: 1080 }
+                }
+            };
+            
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            video.srcObject = stream;
+            
+            // Wait for the video to be ready
+            video.onloadedmetadata = () => {
+                video.play();
+            };
+        } catch (err) {
+            console.error('Error accessing camera:', err);
+            cameraError.style.display = 'block';
+            video.style.display = 'none';
+            
+            // Try again with user-facing camera if environment camera fails
+            try {
+                const constraints = {
+                    video: {
+                        facingMode: 'user',
+                        width: { min: 640, ideal: 1280, max: 1920 },
+                        height: { min: 480, ideal: 720, max: 1080 }
+                    }
+                };
+                
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    video.play();
+                };
+            } catch (err2) {
+                console.error('Error accessing user camera:', err2);
+                cameraError.innerHTML = '<p>Unable to access camera. Please ensure you have granted camera permissions and try again.</p>';
+            }
+        }
+    }
+
+    // Start camera when page loads
+    window.addEventListener('load', initCamera);
+    
+    // Drag functionality
+    painting.addEventListener('mousedown', dragStart);
+    painting.addEventListener('touchstart', dragStart);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('touchmove', drag);
+    document.addEventListener('mouseup', dragEnd);
+    document.addEventListener('touchend', dragEnd);
+    
+    function dragStart(e) {
+        if (e.type === 'touchstart') {
+            initialX = e.touches[0].clientX - xOffset;
+            initialY = e.touches[0].clientY - yOffset;
+        } else {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+        }
+        
+        if (e.target === painting || e.target.parentNode === painting) {
+            isDragging = true;
+        }
+    }
+    
+    function dragEnd(e) {
+        initialX = currentX;
+        initialY = currentY;
+        isDragging = false;
+    }
+    
+    function drag(e) {
+        if (isDragging) {
+            e.preventDefault();
+            
+            if (e.type === 'touchmove') {
+                currentX = e.touches[0].clientX - initialX;
+                currentY = e.touches[0].clientY - initialY;
+            } else {
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+            }
+            
+            xOffset = currentX;
+            yOffset = currentY;
+            
+            setTranslate(currentX, currentY, painting);
+        }
+    }
+    
+    function setTranslate(xPos, yPos, el) {
+        el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0) rotate(${rotation}deg)`;
+    }
+    
+    // Size adjustment
+    function adjustSize(action) {
+        const currentWidth = painting.offsetWidth;
+        const currentHeight = painting.offsetHeight;
+        
+        if (action === 'increase') {
+            painting.style.width = `${currentWidth + 20}px`;
+            painting.style.height = `${currentHeight + 15}px`;
+        } else {
+            painting.style.width = `${currentWidth - 20}px`;
+            painting.style.height = `${currentHeight - 15}px`;
+        }
+        
+        // Update size display
+        currentSize.textContent = `${Math.round(currentWidth)}x${Math.round(currentHeight)}`;
+    }
+    
+    // Reset position
+    function resetPosition() {
+        xOffset = 0;
+        yOffset = 0;
+        rotation = 0;
+        setTranslate(0, 0, painting);
+        painting.style.width = '200px';
+        painting.style.height = '150px';
+        currentSize.textContent = '200x150';
+    }
+    
+    // Toggle rotation
+    function toggleRotation() {
+        rotation = (rotation + 90) % 360;
+        setTranslate(currentX, currentY, painting);
+    }
+
+    // Clean up camera stream when leaving the page
+    window.addEventListener('beforeunload', () => {
+        if (video.srcObject) {
+            const tracks = video.srcObject.getTracks();
+            tracks.forEach(track => track.stop());
+        }
+    });
+</script>
+{% endblock %}
